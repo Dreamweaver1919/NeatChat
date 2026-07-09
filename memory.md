@@ -42,4 +42,4 @@
 - 验证结果：裸 `git --version` 返回 `git version 2.55.0.windows.2`，`git branch --show-current` 返回 `dev`，`git status --short --branch` 可执行。
 - 用户要求将当前代码同步到 GitHub。
 - 本轮同步范围：当前 `dev` 分支工作区全部改动，包括图片生成按钮修复、回归断言、`memory.md` 和 `progress.md`。
-- 发布策略：`gh` 不在 PATH，未创建 PR；按用户“同步代码”要求提交并推送 `dev` 到 `origin/dev`。
+- 发布策略：`gh` 不在 PATH，未创建 PR；按用户“同步代码”要求提交并推送 `dev` 到 `origin/dev`，远端提示可从 `https://github.com/Dreamweaver1919/NeatChat/pull/new/dev` 创建 PR。

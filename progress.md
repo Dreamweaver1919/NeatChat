@@ -5,8 +5,8 @@
 - [x] 确认当前分支、远端和待同步 diff。
 - [x] 确认 `gh` 不在 PATH，本次只提交并推送分支，不创建 PR。
 - [x] 重新运行发布前验证。
-- [ ] 提交当前工作区改动。
-- [ ] 推送 `dev` 到 GitHub `origin/dev`。
+- [x] 提交当前工作区改动。
+- [x] 推送 `dev` 到 GitHub `origin/dev`。
 
 ## 历史任务
 
@@ -39,7 +39,9 @@
 
 - GitHub 同步验证：
   - `git diff --check`：通过；仅提示 Git 将 LF 转 CRLF。
-  - `.\node_modules\.bin\next.cmd lint`：首次因沙箱阻止写 `.next/cache/eslint` 失败；提升权限重跑通过，无 ESLint warnings/errors。## 已知状态
+  - `.\node_modules\.bin\next.cmd lint`：首次因沙箱阻止写 `.next/cache/eslint` 失败；提升权限重跑通过，无 ESLint warnings/errors。- GitHub 同步结果：提交 c0483337 Fix image generation action menu 已推送到 origin/dev；远端提示可创建 PR：https://github.com/Dreamweaver1919/NeatChat/pull/new/dev。gh 不在 PATH，未自动创建 PR。
+
+## 已知状态
 
 - 项目依赖已安装。
 - Git 和 Husky hooks 已可用。
