@@ -2410,7 +2410,10 @@ describe("Gemini visual migration shell", () => {
       /finally \{[\s\S]*document\.body\.removeChild\(textArea\);[\s\S]*\}/,
     );
     expect(chat).toMatch(
-      /text=\{props\.imageGenerationEnabled \? "关闭图片生成" : "图片生成"\}[\s\S]*ariaHasPopup=\{isCompactScreen \? undefined : "listbox"\}[\s\S]*ariaExpanded=\{\s*isCompactScreen \? undefined : actionModals\.imageGeneration\s*\}/,
+      /await setImageGenerationMode\(!props\.imageGenerationEnabled\);[\s\S]*completeMobileAction\(\);[\s\S]*text=\{props\.imageGenerationEnabled \? "关闭图片生成" : "图片生成"\}/,
+    );
+    expect(chat).not.toContain(
+      'setActionModalOpen("imageGeneration", true);',
     );
     expect(chat).toMatch(
       /text=\{currentModelName\}[\s\S]*ariaHasPopup="listbox"[\s\S]*ariaExpanded=\{actionModals\.model\}/,

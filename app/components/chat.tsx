@@ -604,18 +604,11 @@ function getMarkdownStressQaMessages(locationSearch: string): RenderMessage[] {
 }
 
 const stopAll = () => ChatControllerPool.stopAll();
-type ChatActionModalKey =
-  | "model"
-  | "plugin"
-  | "imageGeneration"
-  | "size"
-  | "quality"
-  | "style";
+type ChatActionModalKey = "model" | "plugin" | "size" | "quality" | "style";
 type ChatActionModals = Record<ChatActionModalKey, boolean>;
 const closedChatActionModals: ChatActionModals = {
   model: false,
   plugin: false,
-  imageGeneration: false,
   size: false,
   quality: false,
   style: false,
@@ -1503,49 +1496,12 @@ function useChatActionsView(props: ChatActionsProps) {
             active={props.imageGenerationEnabled}
             ariaPressed={props.imageGenerationEnabled}
             onClick={async () => {
-              if (isCompactScreen) {
-                completeMobileAction();
-                await setImageGenerationMode(!props.imageGenerationEnabled);
-                return;
-              }
-
-              setActionModalOpen("imageGeneration", true);
+              await setImageGenerationMode(!props.imageGenerationEnabled);
+              completeMobileAction();
             }}
             text={props.imageGenerationEnabled ? "关闭图片生成" : "图片生成"}
-            ariaHasPopup={isCompactScreen ? undefined : "listbox"}
-            ariaExpanded={
-              isCompactScreen ? undefined : actionModals.imageGeneration
-            }
             icon={<ImageIcon />}
           />
-          {!isCompactScreen && actionModals.imageGeneration && (
-            <Selector
-              defaultSelectedValue={
-                props.imageGenerationEnabled ? "enabled" : "disabled"
-              }
-              items={[
-                {
-                  title: "启用图片生成",
-                  subTitle: "后续消息会优先调用 jimeng-mcp 生成图片",
-                  value: "enabled",
-                  icon: <ImageIcon />,
-                },
-                {
-                  title: "关闭图片生成",
-                  subTitle: "后续消息按普通聊天处理",
-                  value: "disabled",
-                  icon: <ImageIcon />,
-                },
-              ]}
-              onClose={() => setActionModalOpen("imageGeneration", false)}
-              onSelection={(selection) => {
-                const selected = selection[0];
-                if (!selected) return;
-                setImageGenerationMode(selected === "enabled");
-              }}
-              showSearch={false}
-            />
-          )}
         </div>
 
         {hasSessionActions && (

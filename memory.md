@@ -31,3 +31,15 @@
 - 验证结果和已知遗留问题。
 - 对后续任务有影响的上下文。
 
+
+- 用户要求在新建 `dev` 分支上修复当前 Chrome 页面中图片生成按钮点击异常，修复后不推送并进行实机验证。
+- 本轮根因：桌面端点击 `图片生成` 会在对话工具菜单内部渲染全屏 `Selector`，其 fixed overlay 受菜单 transform/布局影响，导致菜单出现异常滚动区域和点击干扰。
+- 修复范围：`app/components/chat.tsx` 中移除图片生成的二级 `Selector`，改为按钮直接启停 `setImageGenerationMode`；同步更新 `test/gemini-visual-migration.test.ts` 的行为断言。
+- 验证结果：`next lint` 通过；Chrome 本地 `http://localhost:3000/#/chat` 实机点击后 `Close selector` 和 `.selector` 数量均为 0，菜单尺寸保持稳定。`test/gemini-visual-migration.test.ts` 仍有既有样式断言失败。
+- 用户要求解决当前 Codex shell 中 `git` 不在 PATH 的问题。
+- 本轮根因：Git 已安装在 `C:\Program Files\Git`，但当前 Codex shell 未继承机器级 Git PATH；`C:\Users\dozen\.codex\.env` 的 `PATH` 也未把官方 Git 路径放在前面。
+- 修复范围：备份并更新 `C:\Users\dozen\.codex\.env`，在 `PATH` 开头加入 `C:\Program Files\Git\cmd` 和 `C:\Program Files\Git\bin`；同时在当前已位于 PATH 的 `C:\Users\dozen\AppData\Local\UGit\bin` 新增 `git.cmd` shim 转发到官方 Git，使当前 shell 立即可用。
+- 验证结果：裸 `git --version` 返回 `git version 2.55.0.windows.2`，`git branch --show-current` 返回 `dev`，`git status --short --branch` 可执行。
+- 用户要求将当前代码同步到 GitHub。
+- 本轮同步范围：当前 `dev` 分支工作区全部改动，包括图片生成按钮修复、回归断言、`memory.md` 和 `progress.md`。
+- 发布策略：`gh` 不在 PATH，未创建 PR；按用户“同步代码”要求提交并推送 `dev` 到 `origin/dev`。
