@@ -2199,9 +2199,12 @@ function useChatInnerView() {
     "library-full": Locale.ArtifactLibrary.Errors.LibraryFull,
     "write-failed": Locale.ArtifactLibrary.Errors.WriteFailed,
   };
-  const reportArtifactCaptureFailure = (failure: Parameters<typeof getArtifactCaptureMessage>[0]) => {
-    showToast(getArtifactCaptureMessage(failure, artifactCaptureMessages));
-  };
+  const reportArtifactCaptureFailure = useCallback(
+    (failure: Parameters<typeof getArtifactCaptureMessage>[0]) => {
+      showToast(getArtifactCaptureMessage(failure, artifactCaptureMessages));
+    },
+    [],
+  );
   const attachmentsContainerRef = useRef<HTMLDivElement>(null);
   const attachmentSwipeStartRef = useRef<AttachmentSwipeStart | null>(null);
   const activeAttachmentDeleteKeyRef = useRef<string | null>(null);
@@ -3693,7 +3696,7 @@ function useChatInnerView() {
       window.removeEventListener("dragleave", handleDragLeave);
       window.removeEventListener("drop", handleDrop);
     };
-  }, [appendAttachments]);
+  }, [appendAttachments, reportArtifactCaptureFailure, session.id]);
 
   const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const clipboardData = e.clipboardData;
