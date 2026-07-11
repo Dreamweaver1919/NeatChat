@@ -79,6 +79,16 @@ Built on a deep refactoring of NextChat: A more elegant and powerful AI conversa
 
 > For more details, visit the [Demo Site](https://nc.tianz.me)
 
+## 📚 Latest Artifacts Library
+
+The library supports type filters for uploaded files, with responsive desktop, mobile, and multi-page PDF previews.
+
+| Desktop library | Mobile full-screen preview |
+| --------------- | -------------------------- |
+| ![Desktop library](docs/audits/neatchat-web-ui/screenshots/artifacts-image-preview.jpg) | ![Mobile full-screen preview](docs/audits/neatchat-web-ui/screenshots/artifacts-image-preview-mobile.jpg) |
+
+![Safari multi-page PDF preview](docs/audits/neatchat-web-ui/screenshots/safari-pdf-native-final.png)
+
 ## ⚡ Quick Start
 
 I have redefined the variables after `@` in `CUSTOM_MODELS`. For example, previously you could use `gpt-4o@OpenAI`, where `OpenAI` served as the provider and constrained the request format to OpenAI. However, as more models adopt the OpenAI format as the standard, using `@openai` became awkward and caused issues. Now, in my version, I recommend using `@model_category` to constrain the model. (The original method is still supported, but the `@` usage has been expanded.)

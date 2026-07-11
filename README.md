@@ -80,6 +80,16 @@
 
 > 更多内容请移步[演示站](https://nc.tianz.me)
 
+## 📚 最新文件库
+
+文件库支持按类型筛选已上传文件，并提供桌面端、移动端和 PDF 多页预览。
+
+| 桌面端文件库 | 移动端全屏预览 |
+| ------------ | -------------- |
+| ![桌面端文件库](docs/audits/neatchat-web-ui/screenshots/artifacts-image-preview.jpg) | ![移动端全屏预览](docs/audits/neatchat-web-ui/screenshots/artifacts-image-preview-mobile.jpg) |
+
+![Safari PDF 多页预览](docs/audits/neatchat-web-ui/screenshots/safari-pdf-native-final.png)
+
 ## ⚡ 快速开始
 
 我重新定义了CUSTOM_MODELS中@之后的变量，比如原来你可以使用gpt-4o@OpenAI，其中OpenAI作为providers存在，也约束了请求方式是openai格式，但是当后来越来越多的模型都以openai格式作为规范，再@openai就显得很奇怪，也会出现一些问题。现在，我建议在我的版本中，使用`@模型类别`这个方式来约束模型。（当然原来的方式仍然保留，只是扩充了@的用法）
