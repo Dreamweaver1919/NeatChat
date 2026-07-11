@@ -41,6 +41,8 @@ dev
 
 .vscode
 .idea
+.superpowers/
+.worktrees/
 
 # docker-compose env files
 .env
@@ -66,3 +68,4 @@ design-qa.md
 test/capture-dropzone.test.ts
 test/custom-debug.test.ts
 test/drag-drop.test.tsx
+
