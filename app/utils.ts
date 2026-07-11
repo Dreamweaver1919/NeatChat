@@ -355,6 +355,50 @@ export function adapter(config: Record<string, unknown>) {
   });
 }
 
+export function safeLocalStorage(): {
+  getItem: (key: string) => string | null;
+  setItem: (key: string, value: string) => void;
+  removeItem: (key: string) => void;
+  clear: () => void;
+} {
+  let storage: Storage | null;
+
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      storage = window.localStorage;
+    } else {
+      storage = null;
+    }
+  } catch (e) {
+    console.error("localStorage is not available:", e);
+    storage = null;
+  }
+
+  return {
+    getItem(key: string): string | null {
+      if (storage) {
+        return storage.getItem(key);
+      }
+      return null;
+    },
+    setItem(key: string, value: string): void {
+      if (storage) {
+        storage.setItem(key, value);
+      }
+    },
+    removeItem(key: string): void {
+      if (storage) {
+        storage.removeItem(key);
+      }
+    },
+    clear(): void {
+      if (storage) {
+        storage.clear();
+      }
+    },
+  };
+}
+
 export function getOperationId(operation: {
   operationId?: string;
   method: string;
