@@ -36,10 +36,18 @@ import { useAccessStore } from "../store/access";
 import clsx from "clsx";
 import { UpdateAnnouncement } from "./update-announcement";
 import { Loading } from "./loading";
+import { isSharedArtifactPath } from "../artifacts/routes";
 
 const Artifacts = dynamic(async () => (await import("./artifacts")).Artifacts, {
   loading: () => <Loading noLogo />,
 });
+
+const ArtifactLibraryPage = dynamic(
+  async () => (await import("./artifact-library")).ArtifactLibraryPage,
+  {
+    loading: () => <Loading noLogo />,
+  },
+);
 
 const Settings = dynamic(async () => (await import("./settings")).Settings, {
   loading: () => <Loading noLogo />,
@@ -341,6 +349,7 @@ function ScreenContent(props: {
           <Route path={Path.Chat} element={<Chat />} />
           <Route path={Path.Settings} element={<Settings />} />
           <Route path={Path.McpMarket} element={<McpMarketPage />} />
+          <Route path={Path.Artifacts} element={<ArtifactLibraryPage />} />
         </Routes>
       </WindowContent>
     </>
@@ -352,7 +361,7 @@ function Screen() {
   const location = useLocation();
   const navigate = useNavigate();
   const didRouteMobileStartupRef = useRef(false);
-  const isArtifact = location.pathname.includes(Path.Artifacts);
+  const isSharedArtifact = isSharedArtifactPath(location.pathname);
   const isHome = location.pathname === Path.Home;
   const isAuth = location.pathname === Path.Auth;
   const isSd = location.pathname === Path.Sd;
@@ -431,7 +440,7 @@ function Screen() {
     return <Loading />;
   }
 
-  if (isArtifact && !shouldRequireAccessCode) {
+  if (isSharedArtifact && !shouldRequireAccessCode) {
     return (
       <Routes>
         <Route path="/artifacts/:id" element={<Artifacts />} />

@@ -1421,18 +1421,110 @@ export async function processAttachmentFiles(files: File[]) {
   return { fileInfos, imageUrls };
 }
 
+export interface AttachmentUploadOptions {
+  remainingFileSlots?: number;
+  remainingImageSlots?: number;
+  processFile?: (file: File) => Promise<FileInfo>;
+  processImage?: (file: File) => Promise<string>;
+}
+
+export interface SelectedAttachmentResult {
+  fileInfos: FileInfo[];
+  imageUrls: string[];
+  imageFiles: File[];
+  selectedFiles: File[];
+  selectedImageFiles: File[];
+  skippedFiles: number;
+  skippedImages: number;
+}
+
+function selectAttachmentCandidates(
+  files: Iterable<File>,
+  options: AttachmentUploadOptions,
+): Pick<
+  SelectedAttachmentResult,
+  "selectedFiles" | "selectedImageFiles" | "skippedFiles" | "skippedImages"
+> {
+  const remainingFileSlots = Math.max(
+    0,
+    options.remainingFileSlots ?? Infinity,
+  );
+  const remainingImageSlots = Math.max(
+    0,
+    options.remainingImageSlots ?? Infinity,
+  );
+  const selectedFiles: File[] = [];
+  const selectedImageFiles: File[] = [];
+  let skippedFiles = 0;
+  let skippedImages = 0;
+
+  for (const file of files) {
+    if (isAttachmentImage(file)) {
+      if (selectedImageFiles.length >= remainingImageSlots) {
+        skippedImages += 1;
+      } else {
+        selectedImageFiles.push(file);
+      }
+    } else if (selectedFiles.length >= remainingFileSlots) {
+      skippedFiles += 1;
+    } else {
+      selectedFiles.push(file);
+    }
+  }
+
+  return { selectedFiles, selectedImageFiles, skippedFiles, skippedImages };
+}
+
+export async function processSelectedAttachments(
+  files: Iterable<File>,
+  options: AttachmentUploadOptions = {},
+): Promise<SelectedAttachmentResult> {
+  const selection = selectAttachmentCandidates(files, options);
+  const processFile = options.processFile ?? readAttachmentFile;
+  const processImage = options.processImage ?? uploadImageRemote;
+  const fileInfos: FileInfo[] = [];
+  const imageUrls: string[] = [];
+  const imageFiles: File[] = [];
+
+  for (const file of selection.selectedFiles) {
+    try {
+      fileInfos.push(await processFile(file));
+    } catch (error: any) {
+      console.error(`读取文件 ${file.name} 失败:`, error);
+      showToast(`读取文件 ${file.name} 失败: ${error.message || "未知错误"}`);
+    }
+  }
+
+  for (const file of selection.selectedImageFiles) {
+    try {
+      imageUrls.push(await processImage(file));
+      imageFiles.push(file);
+    } catch (error: any) {
+      console.error(`读取文件 ${file.name} 失败:`, error);
+      showToast(`读取文件 ${file.name} 失败: ${error.message || "未知错误"}`);
+    }
+  }
+
+  return { fileInfos, imageUrls, imageFiles, ...selection };
+}
+
 /**
  * 上传附件（包括图片和文件）
- * @param onStart 开始上传时的回调
- * @param onSuccess 上传成功的回调，接收文件信息对象数组和图片URL数组
+ * @param onSuccess 上传成功的回调，接收文件、图片和原始选择结果
  * @param onError 上传失败的回调
  * @param onFinish 上传完成的回调（无论成功失败）
  */
 export function uploadAttachments(
   onStart: () => void,
-  onSuccess: (fileInfos: FileInfo[], imageUrls: string[]) => void,
+  onSuccess: (
+    fileInfos: FileInfo[],
+    imageUrls: string[],
+    imageFiles: File[],
+    result: SelectedAttachmentResult,
+  ) => void,
   onError: (error: any) => void,
   onFinish: () => void,
+  options: AttachmentUploadOptions = {},
 ): void {
   const fileInput = document.createElement("input");
   fileInput.type = "file";
@@ -1448,12 +1540,17 @@ export function uploadAttachments(
 
     onStart();
     try {
-      const { fileInfos, imageUrls } = await processAttachmentFiles(
-        Array.from(files),
-      );
+      const result = await processSelectedAttachments(Array.from(files), options);
 
-      if (fileInfos.length > 0 || imageUrls.length > 0) {
-        onSuccess(fileInfos, imageUrls);
+      if (
+        result.fileInfos.length > 0 ||
+        result.imageUrls.length > 0 ||
+        result.selectedFiles.length > 0 ||
+        result.selectedImageFiles.length > 0 ||
+        result.skippedFiles > 0 ||
+        result.skippedImages > 0
+      ) {
+        onSuccess(result.fileInfos, result.imageUrls, result.imageFiles, result);
       } else {
         onError(new Error("没有成功读取任何文件"));
       }

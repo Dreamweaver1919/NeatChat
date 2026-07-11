@@ -10,6 +10,7 @@ import DragIcon from "../icons/drag.svg";
 import DiscoveryIcon from "../icons/discovery.svg";
 import NeatIcon from "../icons/neat.svg";
 import MenuIcon from "../icons/menu.svg";
+import FileIcon from "../icons/file.svg";
 
 import Locale from "../locales";
 
@@ -293,6 +294,12 @@ export function SideBar(props: {
       icon: <MaskIcon />,
       path: Path.Masks,
       onClick: () => navigate(Path.Masks, { state: { fromHome: true } }),
+    },
+    {
+      label: Locale.ArtifactLibrary.Title,
+      icon: <FileIcon />,
+      path: Path.Artifacts,
+      onClick: () => navigate(Path.Artifacts),
     },
   ];
 
