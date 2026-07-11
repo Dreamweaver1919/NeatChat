@@ -163,6 +163,11 @@ import {
   deactivateMcpClient,
   isMcpEnabled,
 } from "../mcp/actions";
+import {
+  getArtifactCaptureMessage,
+  queueArtifactCapture,
+  queueSelectedArtifactCapture,
+} from "../artifacts/capture";
 import { createConfigFieldMeta } from "../utils/public-app-config";
 import {
   JIMENG_IMAGE_GENERATION_SYSTEM_PROMPT,
@@ -2188,6 +2193,15 @@ function useChatInnerView() {
   const [uploading, setUploading] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<FileInfo[]>([]);
+  const artifactCaptureMessages = {
+    unsupported: Locale.ArtifactLibrary.Errors.Unsupported,
+    "file-too-large": Locale.ArtifactLibrary.Errors.FileTooLarge,
+    "library-full": Locale.ArtifactLibrary.Errors.LibraryFull,
+    "write-failed": Locale.ArtifactLibrary.Errors.WriteFailed,
+  };
+  const reportArtifactCaptureFailure = (failure: Parameters<typeof getArtifactCaptureMessage>[0]) => {
+    showToast(getArtifactCaptureMessage(failure, artifactCaptureMessages));
+  };
   const attachmentsContainerRef = useRef<HTMLDivElement>(null);
   const attachmentSwipeStartRef = useRef<AttachmentSwipeStart | null>(null);
   const activeAttachmentDeleteKeyRef = useRef<string | null>(null);
@@ -3644,6 +3658,12 @@ function useChatInnerView() {
           return;
         }
 
+        queueArtifactCapture(
+          "clipboard-file",
+          filesToProcess,
+          session.id,
+          reportArtifactCaptureFailure,
+        );
         setUploading(true);
         try {
           const { fileInfos, imageUrls } =
@@ -3696,6 +3716,12 @@ function useChatInnerView() {
 
     if (pastedFiles.length > 0 || pastedImageUrls.length > 0) {
       e.preventDefault();
+      queueArtifactCapture(
+        "clipboard-file",
+        pastedFiles,
+        session.id,
+        reportArtifactCaptureFailure,
+      );
       setUploading(true);
       try {
         const { fileInfos, imageUrls } =
@@ -3731,6 +3757,12 @@ function useChatInnerView() {
 
         // 将长文本转为文件附件
         const file = new File([text], "粘贴的文本.txt", { type: "text/plain" });
+        queueArtifactCapture(
+          "clipboard-file",
+          [file],
+          session.id,
+          reportArtifactCaptureFailure,
+        );
         setAttachedFiles([
           ...attachedFiles,
           {
@@ -3761,7 +3793,13 @@ function useChatInnerView() {
         setUploading(true);
       },
       // 上传成功
-      (fileInfos, imageUrls) => {
+      (fileInfos, imageUrls, imageFiles, selection) => {
+        queueSelectedArtifactCapture(
+          "picker",
+          selection,
+          session.id,
+          reportArtifactCaptureFailure,
+        );
         appendAttachments(fileInfos, imageUrls);
       },
       // 上传失败
@@ -3771,6 +3809,10 @@ function useChatInnerView() {
       // 完成上传
       () => {
         setUploading(false);
+      },
+      {
+        remainingFileSlots: Math.max(0, 5 - attachedFiles.length),
+        remainingImageSlots: Math.max(0, 3 - attachImages.length),
       },
     );
   }
